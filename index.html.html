@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Kit — Everything Creators Need, In One Kit.</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0F172A;
+  --card:   #1E293B;
+  --card2:  #253347;
+  --purple: #7C3AED;
+  --hover:  #A78BFA;
+  --text:   #E5E7EB;
+  --dim:    #94A3B8;
+  --dimmer: #475569;
+  --border: rgba(124,58,237,0.18);
+  --border-s: rgba(255,255,255,0.07);
+  --grad:   linear-gradient(135deg, #7C3AED, #A78BFA);
+  --grad2:  linear-gradient(135deg, #4F46E5, #7C3AED);
+  --glow:   0 0 30px rgba(124,58,237,0.25);
+  --sh:     0 2px 16px rgba(0,0,0,0.3);
+  --sh2:    0 8px 40px rgba(0,0,0,0.4);
+  --sh3:    0 24px 80px rgba(0,0,0,0.5);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow-x:hidden;}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle,rgba(124,58,237,0.06) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+/* ambient glow blobs */
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 600px 400px at 10% 20%, rgba(124,58,237,0.09) 0%,transparent 70%),
+    radial-gradient(ellipse 500px 350px at 90% 80%, rgba(167,139,250,0.06) 0%,transparent 70%);
+}
+section{position:relative;z-index:1;}
+
+/* ─── FEEDBACK OVERLAY ─── */
+#fb-overlay{
+  display:none;position:fixed;inset:0;z-index:600;
+  background:rgba(0,0,0,0.65);backdrop-filter:blur(10px);
+  align-items:center;justify-content:center;
+}
+#fb-overlay.open{display:flex;}
+.fb-modal{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:22px;padding:40px 36px;
+  max-width:460px;width:90%;position:relative;
+  box-shadow:0 32px 100px rgba(0,0,0,0.6),0 0 0 1px rgba(124,58,237,0.3);
+  animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.88) translateY(24px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.fb-close{
+  position:absolute;top:14px;right:14px;
+  background:var(--card2);border:1px solid var(--border-s);border-radius:8px;
+  width:32px;height:32px;font-size:1rem;cursor:pointer;
+  color:var(--dim);transition:all 0.15s;
+}
+.fb-close:hover{background:rgba(124,58,237,0.2);color:var(--hover);}
+.fb-tag{
+  font-family:'Press Start 2P',monospace;font-size:0.45rem;
+  background:rgba(124,58,237,0.2);color:var(--hover);
+  border:1px solid rgba(124,58,237,0.3);
+  padding:5px 12px;border-radius:999px;display:inline-block;margin-bottom:18px;
+}
+.fb-modal h3{font-size:1.35rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;color:var(--text);}
+.fb-modal p{color:var(--dim);font-size:0.87rem;line-height:1.65;margin-bottom:20px;}
+.fb-email-row{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(124,58,237,0.1);border:1px solid var(--border);
+  border-radius:11px;padding:12px 16px;margin-bottom:18px;
+}
+.fb-email-row .email-icon{font-size:1.1rem;}
+.fb-email-row .email-addr{font-size:0.87rem;font-weight:600;color:var(--hover);}
+.fb-textarea{
+  width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);
+  border-radius:11px;padding:12px 16px;font-size:0.85rem;font-family:'DM Sans',sans-serif;
+  color:var(--text);resize:none;height:100px;outline:none;transition:border-color 0.15s;margin-bottom:16px;
+}
+.fb-textarea:focus{border-color:var(--purple);}
+.fb-textarea::placeholder{color:var(--dimmer);}
+.fb-btns{display:flex;gap:10px;}
+.fb-send{
+  flex:1;padding:12px;border-radius:11px;font-size:0.88rem;font-weight:700;
+  background:var(--grad);border:none;color:#fff;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all 0.2s;
+  box-shadow:0 4px 20px rgba(124,58,237,0.4);
+}
+.fb-send:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(124,58,237,0.55);}
+.fb-cancel{
+  padding:12px 20px;border-radius:11px;font-size:0.88rem;
+  border:1px solid var(--border-s);background:transparent;color:var(--dim);
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;
+}
+.fb-cancel:hover{background:rgba(255,255,255,0.05);color:var(--text);}
+.fb-sent{display:none;text-align:center;padding:16px 0;}
+.fb-sent .sent-icon{font-size:2.8rem;margin-bottom:14px;}
+.fb-sent p{color:var(--dim);font-size:0.87rem;line-height:1.65;}
+.fb-sent strong{color:var(--hover);}
+
+/* ─── BETA BANNER ─── */
+#beta-banner{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:var(--grad);
+  padding:10px 48px;
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  font-size:0.8rem;color:#fff;font-weight:500;
+}
+.beta-pill{
+  font-family:'Press Start 2P',monospace;font-size:0.44rem;
+  background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);
+  padding:5px 12px;border-radius:999px;letter-spacing:0.06em;
+}
+.fb-link{
+  color:#fff;font-weight:700;text-decoration:underline;cursor:pointer;
+  background:none;border:none;font-family:'DM Sans',sans-serif;font-size:0.8rem;
+}
+.fb-link:hover{opacity:0.85;}
+.banner-close{
+  position:absolute;right:18px;background:none;border:none;
+  color:rgba(255,255,255,0.7);font-size:1.2rem;cursor:pointer;
+  line-height:1;top:50%;transform:translateY(-50%);
+}
+.banner-close:hover{color:#fff;}
+
+/* ─── NAV ─── */
+nav{
+  position:fixed;top:38px;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;height:60px;
+  background:rgba(15,23,42,0.88);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border-s);
+  box-shadow:0 1px 30px rgba(0,0,0,0.3);
+}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:0.8rem;
+}
+.logo-text{
+  font-family:'Press Start 2P',monospace;font-size:0.58rem;line-height:1.5;
+  background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.nav-links{display:flex;gap:28px;align-items:center;}
+.nav-links a{color:var(--dim);font-size:0.88rem;text-decoration:none;font-weight:500;transition:color 0.2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.fb-nav{color:var(--hover);font-weight:600;}
+.nav-cta{display:flex;gap:10px;}
+.btn-ghost{
+  padding:8px 18px;border-radius:9px;font-size:0.84rem;font-weight:500;
+  border:1px solid var(--border-s);color:var(--dim);background:transparent;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;
+}
+.btn-ghost:hover{background:rgba(255,255,255,0.05);color:var(--text);}
+.btn-primary{
+  padding:8px 20px;border-radius:9px;font-size:0.84rem;font-weight:700;
+  background:var(--grad);border:none;color:#fff;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  box-shadow:0 4px 20px rgba(124,58,237,0.4);transition:all 0.2s;
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(124,58,237,0.55);}
+
+/* ─── HERO ─── */
+#hero{
+  min-height:100vh;padding:160px 24px 80px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(124,58,237,0.4);background:rgba(124,58,237,0.1);
+  border-radius:999px;padding:7px 18px;margin-bottom:36px;
+  font-size:0.78rem;color:var(--hover);font-weight:600;
+}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--hover);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+h1.hero-title{
+  font-size:clamp(2.5rem,6.5vw,5.5rem);
+  font-weight:800;line-height:1.08;letter-spacing:-0.03em;max-width:860px;color:var(--text);
+}
+.gtext{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-sub{margin-top:22px;font-size:1.05rem;color:var(--dim);max-width:510px;line-height:1.75;font-weight:400;}
+.hero-actions{display:flex;gap:14px;margin-top:40px;flex-wrap:wrap;justify-content:center;}
+.btn-lg{
+  padding:14px 32px;border-radius:12px;font-size:0.95rem;font-weight:700;
+  background:var(--grad);border:none;color:#fff;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  box-shadow:0 8px 32px rgba(124,58,237,0.45);transition:all 0.2s;
+}
+.btn-lg:hover{transform:translateY(-2px);box-shadow:0 12px 44px rgba(124,58,237,0.6);}
+.btn-lg-ghost{
+  padding:14px 32px;border-radius:12px;font-size:0.95rem;font-weight:600;
+  border:1px solid var(--border-s);color:var(--text);background:rgba(255,255,255,0.05);
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;
+}
+.btn-lg-ghost:hover{border-color:rgba(124,58,237,0.4);background:rgba(124,58,237,0.08);}
+.hero-stats{display:flex;gap:52px;margin-top:68px;justify-content:center;flex-wrap:wrap;}
+.hero-stat{text-align:center;}
+.hero-stat .num{font-size:2.2rem;font-weight:800;letter-spacing:-0.03em;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-stat .lbl{font-size:0.72rem;color:var(--dimmer);margin-top:4px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;}
+
+/* ─── SECTION LABELS ─── */
+.s-lbl{font-size:0.66rem;letter-spacing:0.18em;font-weight:700;color:var(--hover);text-transform:uppercase;margin-bottom:12px;}
+.s-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;text-align:center;letter-spacing:-0.025em;line-height:1.2;color:var(--text);}
+
+/* ─── WORKFLOW ─── */
+#workflow{padding:96px 24px;background:rgba(30,41,59,0.5);display:flex;flex-direction:column;align-items:center;border-top:1px solid var(--border-s);border-bottom:1px solid var(--border-s);}
+.wf-steps{display:flex;align-items:center;margin-top:56px;flex-wrap:wrap;justify-content:center;}
+.wf-step{
+  display:flex;flex-direction:column;align-items:center;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:18px;padding:28px 20px;width:154px;
+  position:relative;transition:all 0.3s;box-shadow:var(--sh);
+}
+.wf-step:hover{border-color:var(--purple);transform:translateY(-4px);box-shadow:var(--sh2),var(--glow);}
+.wf-num{
+  position:absolute;top:-13px;
+  font-size:0.64rem;font-weight:700;
+  background:var(--grad);padding:3px 10px;border-radius:999px;color:#fff;
+}
+.wf-icon{font-size:1.8rem;margin-bottom:10px;}
+.wf-name{font-size:0.87rem;font-weight:700;color:var(--text);}
+.wf-desc{font-size:0.72rem;color:var(--dimmer);margin-top:4px;text-align:center;line-height:1.4;}
+.wf-arrow{color:var(--dimmer);font-size:1.3rem;padding:0 6px;flex-shrink:0;}
+
+/* ─── TOOLS ─── */
+#tools{padding:96px 24px;}
+.tools-cats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:36px;}
+.cat-btn{
+  padding:7px 18px;border-radius:999px;font-size:0.82rem;font-weight:500;
+  border:1px solid var(--border-s);background:rgba(255,255,255,0.04);color:var(--dim);
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;
+}
+.cat-btn:hover{border-color:rgba(124,58,237,0.4);color:var(--text);}
+.cat-btn.active{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 4px 18px rgba(124,58,237,0.4);}
+.tools-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));
+  gap:14px;max-width:1200px;margin:48px auto 0;
+}
+.tool-card{
+  background:var(--card);border:1px solid var(--border-s);
+  border-radius:14px;padding:20px;cursor:pointer;transition:all 0.25s;box-shadow:var(--sh);
+}
+.tool-card:hover{border-color:var(--border);transform:translateY(-3px);box-shadow:var(--sh2),var(--glow);}
+.t-icon{font-size:1.5rem;margin-bottom:10px;display:block;}
+.t-name{font-size:0.86rem;font-weight:700;color:var(--text);}
+.t-cat{font-size:0.7rem;color:var(--dimmer);margin-top:4px;}
+.t-tag{display:inline-block;margin-top:10px;font-size:0.63rem;padding:2px 9px;border-radius:999px;font-weight:700;}
+.t-tag.free{background:rgba(79,70,229,0.2);color:#818CF8;border:1px solid rgba(79,70,229,0.3);}
+.t-tag.pro{background:rgba(124,58,237,0.2);color:var(--hover);border:1px solid rgba(124,58,237,0.35);}
+
+/* ─── FEATURES ─── */
+#features{padding:96px 24px;background:rgba(30,41,59,0.4);border-top:1px solid var(--border-s);border-bottom:1px solid var(--border-s);}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:1100px;margin:52px auto 0;}
+.feat-card{
+  background:var(--card);border:1px solid var(--border-s);
+  border-radius:20px;padding:34px;position:relative;overflow:hidden;
+  transition:all 0.3s;box-shadow:var(--sh);
+}
+.feat-card:hover{border-color:var(--border);transform:translateY(-4px);box-shadow:var(--sh2),var(--glow);}
+.feat-card.wide{grid-column:span 2;}
+.feat-blob{position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;filter:blur(80px);opacity:0.12;}
+.feat-blob.pu{background:var(--purple);}
+.feat-blob.lv{background:var(--hover);}
+.feat-blob.bl{background:#4F46E5;}
+.f-icon{font-size:2rem;margin-bottom:16px;display:block;}
+.feat-card h3{font-size:1.25rem;font-weight:800;letter-spacing:-0.02em;color:var(--text);}
+.feat-card p{color:var(--dim);margin-top:10px;line-height:1.7;font-size:0.88rem;}
+.f-list{margin-top:18px;display:flex;flex-direction:column;gap:9px;}
+.f-list li{display:flex;align-items:center;gap:9px;color:var(--dim);font-size:0.84rem;list-style:none;}
+.f-list li::before{
+  content:'';display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--grad);flex-shrink:0;box-shadow:0 0 6px rgba(124,58,237,0.6);
+}
+
+/* ─── DASHBOARD ─── */
+#dash-preview{padding:96px 24px;overflow:hidden;}
+.dash-frame{
+  max-width:1100px;margin:56px auto 0;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,0.5),0 0 0 1px rgba(124,58,237,0.15);
+}
+.db-bar{
+  display:flex;align-items:center;gap:7px;
+  padding:11px 16px;background:rgba(15,23,42,0.8);border-bottom:1px solid var(--border-s);
+}
+.db-dot{width:11px;height:11px;border-radius:50%;}
+.db-dot.r{background:#ff5f57;}.db-dot.y{background:#ffbd2e;}.db-dot.g{background:#28c840;}
+.db-url{
+  margin-left:10px;flex:1;background:rgba(255,255,255,0.05);
+  border:1px solid var(--border-s);border-radius:6px;padding:4px 12px;
+  font-size:0.72rem;color:var(--dimmer);
+}
+.db-layout{display:flex;height:555px;}
+.db-side{
+  width:215px;flex-shrink:0;
+  background:rgba(15,23,42,0.7);border-right:1px solid var(--border-s);padding:18px 0;
+}
+.db-side-logo{padding:0 16px 18px;border-bottom:1px solid var(--border-s);display:flex;align-items:center;gap:8px;}
+.db-logo-icon{width:26px;height:26px;border-radius:7px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:0.7rem;}
+.db-logo-text{font-family:'Press Start 2P',monospace;font-size:0.42rem;line-height:1.5;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.db-nav-sec{padding:13px 10px 4px;}
+.db-nav-lbl{font-size:0.6rem;color:var(--dimmer);letter-spacing:0.1em;text-transform:uppercase;font-weight:700;padding:0 8px;margin-bottom:5px;}
+.db-nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 10px;border-radius:8px;cursor:pointer;
+  font-size:0.81rem;color:var(--dim);font-weight:500;transition:all 0.15s;
+}
+.db-nav-item:hover{background:rgba(124,58,237,0.12);color:var(--text);}
+.db-nav-item.on{background:rgba(124,58,237,0.18);color:var(--hover);font-weight:700;border:1px solid rgba(124,58,237,0.25);}
+.db-nav-item .ni{font-size:0.95rem;flex-shrink:0;}
+.db-main{flex:1;overflow-y:auto;padding:22px;background:var(--card);}
+.db-main::-webkit-scrollbar{width:3px;}
+.db-main::-webkit-scrollbar-thumb{background:rgba(124,58,237,0.3);border-radius:2px;}
+.db-toprow{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.db-hi{font-size:1.12rem;font-weight:700;color:var(--text);}
+.db-hi span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.db-srch{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.05);border:1px solid var(--border-s);
+  border-radius:8px;padding:6px 14px;font-size:0.77rem;color:var(--dimmer);
+}
+.db-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.db-sc{background:rgba(15,23,42,0.6);border:1px solid var(--border-s);border-radius:12px;padding:13px;}
+.db-sc .sv{font-size:1.35rem;font-weight:800;color:var(--text);}
+.db-sc .sv.g{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.db-sc .sl{font-size:0.68rem;color:var(--dimmer);margin-top:2px;font-weight:500;}
+.db-sc .sd{font-size:0.68rem;color:#34D399;margin-top:4px;font-weight:600;}
+.db-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.db-card{background:rgba(15,23,42,0.5);border:1px solid var(--border-s);border-radius:12px;padding:15px;}
+.db-card h4{font-size:0.8rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:5px;color:var(--text);}
+.qt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.qt{
+  background:rgba(255,255,255,0.04);border:1px solid var(--border-s);border-radius:8px;
+  padding:9px 6px;text-align:center;cursor:pointer;transition:all 0.15s;
+  font-size:0.68rem;color:var(--dim);font-weight:500;
+}
+.qt:hover{border-color:rgba(124,58,237,0.4);color:var(--hover);background:rgba(124,58,237,0.1);}
+.qt .qi{font-size:1.2rem;display:block;margin-bottom:3px;}
+.idea-l{display:flex;flex-direction:column;gap:7px;}
+.idea-i{background:rgba(255,255,255,0.04);border:1px solid var(--border-s);border-radius:8px;padding:9px 11px;}
+.idea-i .itag{font-size:0.58rem;font-weight:700;color:var(--hover);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3px;}
+.idea-i .itxt{font-size:0.75rem;line-height:1.4;color:var(--text);}
+.cal-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+.cal-d{text-align:center;}
+.cal-dn{font-size:0.57rem;color:var(--dimmer);font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px;}
+.cal-n{width:26px;height:26px;border-radius:6px;margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:0.75rem;cursor:pointer;font-weight:500;color:var(--dim);}
+.cal-n.hp{background:rgba(124,58,237,0.2);color:var(--hover);font-weight:700;border:1px solid rgba(124,58,237,0.3);}
+.cal-n.td{background:var(--grad);color:#fff;font-weight:700;box-shadow:0 0 12px rgba(124,58,237,0.5);}
+.cal-dot{width:4px;height:4px;border-radius:50%;background:var(--hover);margin:2px auto 0;}
+.ai-form{display:flex;flex-direction:column;gap:7px;}
+.ai-sel,.ai-inp{
+  background:rgba(255,255,255,0.05);border:1px solid var(--border-s);
+  border-radius:8px;padding:7px 11px;font-size:0.77rem;color:var(--text);
+  font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s;
+}
+.ai-sel option{background:var(--card);}
+.ai-sel:focus,.ai-inp:focus{border-color:var(--purple);}
+.ai-btn{
+  padding:9px;border-radius:8px;font-size:0.77rem;font-weight:700;
+  background:var(--grad);border:none;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;
+  box-shadow:0 4px 14px rgba(124,58,237,0.4);
+}
+.ai-out{
+  background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);
+  border-radius:8px;padding:9px 11px;font-size:0.73rem;color:var(--dim);line-height:1.6;font-style:italic;
+}
+
+/* ─── PRICING ─── */
+#pricing{padding:96px 24px;background:rgba(30,41,59,0.4);border-top:1px solid var(--border-s);border-bottom:1px solid var(--border-s);}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:980px;margin:52px auto 0;}
+.price-card{
+  background:var(--card);border:1px solid var(--border-s);
+  border-radius:20px;padding:32px 26px;position:relative;overflow:hidden;
+  transition:all 0.3s;box-shadow:var(--sh);
+}
+.price-card:hover{transform:translateY(-5px);box-shadow:var(--sh2),var(--glow);}
+.price-card.pop{border-color:rgba(124,58,237,0.5);box-shadow:0 0 0 1px rgba(124,58,237,0.2),var(--sh2);}
+.pop-badge{
+  position:absolute;top:16px;right:16px;
+  background:var(--grad);color:#fff;font-size:0.58rem;font-weight:700;
+  padding:4px 10px;border-radius:999px;letter-spacing:0.04em;
+}
+.p-name{font-size:0.7rem;color:var(--dimmer);letter-spacing:0.1em;text-transform:uppercase;font-weight:700;}
+.p-price{font-size:2.6rem;font-weight:800;letter-spacing:-0.03em;margin:10px 0 3px;color:var(--text);}
+.p-price.g{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.p-sub{font-size:0.77rem;color:var(--dimmer);}
+.p-div{height:1px;background:var(--border-s);margin:18px 0;}
+.p-feats{display:flex;flex-direction:column;gap:10px;}
+.pf{display:flex;align-items:flex-start;gap:9px;font-size:0.83rem;color:var(--dim);}
+.pf-i{font-size:0.78rem;flex-shrink:0;margin-top:1px;color:var(--hover);}
+.p-btn{width:100%;margin-top:26px;padding:12px;border-radius:10px;font-size:0.87rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.p-btn.out{background:transparent;border:1px solid var(--border-s);color:var(--dim);}
+.p-btn.out:hover{border-color:rgba(124,58,237,0.4);background:rgba(124,58,237,0.08);color:var(--hover);}
+.p-btn.fill{background:var(--grad);border:none;color:#fff;box-shadow:0 4px 20px rgba(124,58,237,0.4);}
+.p-btn.fill:hover{box-shadow:0 8px 32px rgba(124,58,237,0.55);transform:translateY(-1px);}
+
+/* ─── REVIEWS ─── */
+#reviews{padding:96px 24px;}
+.reviews-empty{
+  max-width:600px;margin:52px auto 0;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  background:var(--card);border:1px dashed rgba(124,58,237,0.25);
+  border-radius:24px;padding:64px 48px;
+  box-shadow:var(--sh);
+}
+.reviews-empty .empty-icon{font-size:3rem;margin-bottom:20px;opacity:0.7;}
+.reviews-empty h3{font-size:1.2rem;font-weight:700;color:var(--text);margin-bottom:12px;}
+.reviews-empty p{color:var(--dim);font-size:0.9rem;line-height:1.7;max-width:380px;}
+.review-cta{
+  margin-top:28px;padding:11px 28px;border-radius:10px;font-size:0.87rem;font-weight:700;
+  background:var(--grad);border:none;color:#fff;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+  box-shadow:0 4px 20px rgba(124,58,237,0.35);transition:all 0.2s;
+}
+.review-cta:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(124,58,237,0.5);}
+
+/* ─── CTA ─── */
+#cta{padding:80px 24px 110px;background:rgba(30,41,59,0.4);border-top:1px solid var(--border-s);}
+.cta-box{
+  max-width:760px;margin:0 auto;text-align:center;
+  background:rgba(124,58,237,0.07);
+  border:1px solid rgba(124,58,237,0.25);
+  border-radius:24px;padding:68px 44px;position:relative;overflow:hidden;
+  box-shadow:var(--sh2);
+}
+.cta-box::before{
+  content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:500px;height:160px;
+  background:radial-gradient(ellipse,rgba(124,58,237,0.18),transparent 70%);pointer-events:none;
+}
+.cta-box h2{font-size:clamp(1.8rem,4.5vw,2.9rem);font-weight:800;letter-spacing:-0.025em;line-height:1.15;color:var(--text);}
+.cta-box p{color:var(--dim);margin-top:14px;font-size:0.92rem;line-height:1.7;}
+.cta-acts{display:flex;gap:14px;justify-content:center;margin-top:34px;flex-wrap:wrap;}
+
+/* ─── TECH ─── */
+#tech{padding:96px 24px;}
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:12px;max-width:880px;margin:44px auto 0;}
+.tech-item{
+  background:var(--card);border:1px solid var(--border-s);border-radius:12px;padding:16px;
+  text-align:center;transition:all 0.2s;box-shadow:var(--sh);
+}
+.tech-item:hover{border-color:var(--border);box-shadow:var(--sh2),var(--glow);transform:translateY(-2px);}
+.tech-item .ti{font-size:1.7rem;margin-bottom:6px;}
+.tech-item .tn{font-size:0.78rem;font-weight:700;color:var(--text);}
+.tech-item .tr{font-size:0.62rem;color:var(--dimmer);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;}
+
+/* ─── PAGES ─── */
+#pages{padding:96px 24px;background:rgba(30,41,59,0.4);border-top:1px solid var(--border-s);border-bottom:1px solid var(--border-s);}
+.pages-tbl{
+  max-width:880px;margin:44px auto 0;
+  border:1px solid var(--border-s);border-radius:16px;overflow:hidden;box-shadow:var(--sh);
+}
+.pages-tbl table{width:100%;border-collapse:collapse;}
+.pages-tbl th{
+  background:rgba(15,23,42,0.7);padding:12px 18px;
+  text-align:left;font-size:0.72rem;color:var(--dimmer);font-weight:700;
+  letter-spacing:0.06em;text-transform:uppercase;border-bottom:1px solid var(--border-s);
+}
+.pages-tbl td{padding:10px 18px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.81rem;color:var(--dim);background:var(--card);}
+.pages-tbl tr:last-child td{border-bottom:none;}
+.pages-tbl tr:hover td{background:rgba(124,58,237,0.05);}
+.pages-tbl .path{color:var(--hover);font-weight:600;font-size:0.77rem;}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:0.61rem;font-weight:700;letter-spacing:0.04em;}
+.badge.seo{background:rgba(79,70,229,0.2);color:#818CF8;border:1px solid rgba(79,70,229,0.3);}
+.badge.auth{background:rgba(124,58,237,0.2);color:var(--hover);border:1px solid rgba(124,58,237,0.3);}
+.badge.pub{background:rgba(167,139,250,0.12);color:#C4B5FD;border:1px solid rgba(167,139,250,0.25);}
+
+/* ─── FOOTER ─── */
+footer{
+  border-top:1px solid var(--border-s);padding:52px 48px 36px;
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;
+  background:rgba(15,23,42,0.6);
+}
+.foot-brand-logo{display:flex;align-items:center;gap:8px;margin-bottom:13px;}
+.foot-logo-i{width:28px;height:28px;border-radius:7px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:0.74rem;}
+.foot-logo-t{font-family:'Press Start 2P',monospace;font-size:0.48rem;line-height:1.5;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.foot-brand p{font-size:0.81rem;color:var(--dimmer);line-height:1.75;max-width:275px;}
+footer h5{font-size:0.7rem;color:var(--dimmer);text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:15px;}
+footer ul{list-style:none;display:flex;flex-direction:column;gap:10px;}
+footer ul li a{font-size:0.83rem;color:var(--dim);text-decoration:none;transition:color 0.2s;font-weight:500;}
+footer ul li a:hover{color:var(--hover);}
+.foot-bot{
+  border-top:1px solid var(--border-s);padding:18px 48px;
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:0.77rem;color:var(--dimmer);
+  background:rgba(15,23,42,0.6);
+}
+
+/* ─── ANIMATIONS ─── */
+.fade-up{opacity:0;transform:translateY(26px);transition:opacity 0.55s ease,transform 0.55s ease;}
+.fade-up.visible{opacity:1;transform:translateY(0);}
+
+@media(max-width:768px){
+  nav{padding:0 20px;top:36px;}
+  .nav-links{display:none;}
+  .feat-grid{grid-template-columns:1fr;}
+  .feat-card.wide{grid-column:span 1;}
+  .price-grid{grid-template-columns:1fr;}
+  footer{grid-template-columns:1fr 1fr;padding:36px 24px;}
+  .db-side{display:none;}
+  .db-stats{grid-template-columns:1fr 1fr;}
+  .wf-arrow{display:none;}
+  #beta-banner{padding:9px 44px 9px 16px;flex-wrap:wrap;gap:8px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── FEEDBACK OVERLAY ── -->
+<div id="fb-overlay">
+  <div class="fb-modal">
+    <button class="fb-close" onclick="closeFeedback()">✕</button>
+    <div id="fb-form-area">
+      <span class="fb-tag">BETA FEEDBACK</span>
+      <h3>Share your thoughts 💬</h3>
+      <p>We're still in testing and your feedback helps us build Creator Kit better. Every message goes directly to our team.</p>
+      <div class="fb-email-row">
+        <span class="email-icon">📬</span>
+        <span class="email-addr">supportcreatorkit@gmail.com</span>
+      </div>
+      <textarea class="fb-textarea" id="fb-text" placeholder="What do you love? What's missing? Any bugs? Tell us everything..."></textarea>
+      <div class="fb-btns">
+        <button class="fb-cancel" onclick="closeFeedback()">Cancel</button>
+        <button class="fb-send" onclick="sendFeedback()">✨ Send Feedback</button>
+      </div>
+    </div>
+    <div class="fb-sent" id="fb-sent">
+      <div class="sent-icon">🎉</div>
+      <p>Thank you! Your feedback has been sent to<br><strong>supportcreatorkit@gmail.com</strong><br><br>We read every message and it shapes what we build next.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── BETA BANNER ── -->
+<div id="beta-banner">
+  <span class="beta-pill">BETA</span>
+  <span>We're still testing — got feedback?</span>
+  <button class="fb-link" onclick="openFeedback()">Share it here →</button>
+  <button class="banner-close" onclick="dismissBanner()">✕</button>
+</div>
+
+<!-- ── NAV ── -->
+<nav id="main-nav">
+  <div class="nav-logo">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">Creator<br>Kit</div>
+  </div>
+  <div class="nav-links">
+    <a href="#tools">Tools</a>
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#tech">Stack</a>
+    <a href="#" onclick="openFeedback();return false;" class="fb-nav">Beta Feedback</a>
+  </div>
+  <div class="nav-cta">
+    <button class="btn-ghost">Sign In</button>
+    <button class="btn-primary">Start Free</button>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="hero-badge"><span class="dot"></span>Now in Beta — 12,000+ Creators</div>
+  <h1 class="hero-title">Everything Creators Need —<br><span class="gtext">In One Kit.</span></h1>
+  <p class="hero-sub">AI toolkit + content planner + social scheduler. Stop bouncing between 12 apps. Your creator OS starts here.</p>
+  <div class="hero-actions">
+    <button class="btn-lg">Start Free →</button>
+    <button class="btn-lg-ghost">Try Bio Generator</button>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num" data-val="30">0+</div><div class="lbl">AI Tools</div></div>
+    <div class="hero-stat"><div class="num" data-val="12000">0</div><div class="lbl">Creators</div></div>
+    <div class="hero-stat"><div class="num" data-val="5">0</div><div class="lbl">Platforms</div></div>
+    <div class="hero-stat"><div class="num static">₹0</div><div class="lbl">To Start</div></div>
+  </div>
+</section>
+
+<!-- ── WORKFLOW ── -->
+<section id="workflow">
+  <p class="s-lbl">how it works</p>
+  <h2 class="s-title">The Complete <span class="gtext">Creator Workflow</span></h2>
+  <div class="wf-steps">
+    <div class="wf-step fade-up"><span class="wf-num">01</span><div class="wf-icon">💡</div><div class="wf-name">Ideate</div><div class="wf-desc">Save to Vault</div></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step fade-up"><span class="wf-num">02</span><div class="wf-icon">✍️</div><div class="wf-name">Generate</div><div class="wf-desc">AI captions & scripts</div></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step fade-up"><span class="wf-num">03</span><div class="wf-icon">🎨</div><div class="wf-name">Design</div><div class="wf-desc">Images & thumbnails</div></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step fade-up"><span class="wf-num">04</span><div class="wf-icon">📅</div><div class="wf-name">Schedule</div><div class="wf-desc">Plan your calendar</div></div>
+    <div class="wf-arrow">→</div>
+    <div class="wf-step fade-up"><span class="wf-num">05</span><div class="wf-icon">🚀</div><div class="wf-name">Post</div><div class="wf-desc">Auto-publish & track</div></div>
+  </div>
+</section>
+
+<!-- ── TOOLS ── -->
+<section id="tools" style="text-align:center;">
+  <p class="s-lbl">ai toolkit</p>
+  <h2 class="s-title">30+ Tools. <span class="gtext">One Dashboard.</span></h2>
+  <div class="tools-cats">
+    <button class="cat-btn active">All Tools</button>
+    <button class="cat-btn">🖼️ Image</button>
+    <button class="cat-btn">✍️ Content</button>
+    <button class="cat-btn">💡 Ideas</button>
+    <button class="cat-btn">📈 Growth</button>
+    <button class="cat-btn">🎨 Branding</button>
+  </div>
+  <div class="tools-grid">
+    <div class="tool-card fade-up"><span class="t-icon">🖼️</span><div class="t-name">Image Resizer</div><div class="t-cat">/tools/image-resizer</div><span class="t-tag free">FREE</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">✂️</span><div class="t-name">Background Remover</div><div class="t-cat">/tools/background-remover</div><span class="t-tag free">FREE</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">📸</span><div class="t-name">Thumbnail Generator</div><div class="t-cat">/tools/thumbnail-generator</div><span class="t-tag pro">PRO</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">🤖</span><div class="t-name">AI Background Gen</div><div class="t-cat">/tools/ai-background</div><span class="t-tag pro">PRO</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">📝</span><div class="t-name">Caption Generator</div><div class="t-cat">/tools/caption-generator</div><span class="t-tag free">FREE</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">🔥</span><div class="t-name">Viral Hook Generator</div><div class="t-cat">/tools/hook-generator</div><span class="t-tag free">FREE</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">🎬</span><div class="t-name">Reel Script Generator</div><div class="t-cat">/tools/reel-script</div><span class="t-tag pro">PRO</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">📊</span><div class="t-name">Carousel Generator</div><div class="t-cat">/tools/carousel-generator</div><span class="t-tag pro">PRO</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">#️⃣</span><div class="t-name">Hashtag Generator</div><div class="t-cat">/tools/hashtag-generator</div><span class="t-tag free">FREE</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">🐦</span><div class="t-name">Twitter Thread Gen</div><div class="t-cat">/tools/thread-generator</div><span class="t-tag pro">PRO</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">💼</span><div class="t-name">LinkedIn Post Gen</div><div class="t-cat">/tools/linkedin-generator</div><span class="t-tag pro">PRO</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">📺</span><div class="t-name">YouTube Description</div><div class="t-cat">/tools/yt-description</div><span class="t-tag pro">PRO</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">🧠</span><div class="t-name">Content Idea Gen</div><div class="t-cat">/tools/content-ideas</div><span class="t-tag free">FREE</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">🌟</span><div class="t-name">Niche Finder</div><div class="t-cat">/tools/niche-finder</div><span class="t-tag pro">PRO</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">⏰</span><div class="t-name">Best Posting Time</div><div class="t-cat">/tools/posting-time</div><span class="t-tag pro">PRO</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">📈</span><div class="t-name">Engagement Rate Calc</div><div class="t-cat">/tools/engagement-calc</div><span class="t-tag free">FREE</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">💰</span><div class="t-name">Influencer Rate Calc</div><div class="t-cat">/tools/influencer-rate</div><span class="t-tag free">FREE</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">🪄</span><div class="t-name">Brand Voice Gen</div><div class="t-cat">/tools/brand-voice</div><span class="t-tag pro">PRO</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">👤</span><div class="t-name">Instagram Bio Gen</div><div class="t-cat">/tools/instagram-bio</div><span class="t-tag free">FREE</span></div>
+    <div class="tool-card fade-up"><span class="t-icon">🏷️</span><div class="t-name">Slogan Generator</div><div class="t-cat">/tools/slogan-generator</div><span class="t-tag pro">PRO</span></div>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section id="features" style="text-align:center;">
+  <p class="s-lbl">features</p>
+  <h2 class="s-title">Built for <span class="gtext">Daily Creator Use</span></h2>
+  <div class="feat-grid" style="text-align:left;">
+    <div class="feat-card fade-up"><div class="feat-blob pu"></div><span class="f-icon">💡</span><h3>Idea Vault</h3><p>Never lose a content idea again. Save reel hooks, caption drafts, carousel concepts — all in one searchable workspace.</p><ul class="f-list"><li>Reel, carousel, story idea templates</li><li>Convert ideas → scheduled posts instantly</li><li>Tag, filter, and search all ideas</li></ul></div>
+    <div class="feat-card fade-up"><div class="feat-blob lv"></div><span class="f-icon">📅</span><h3>Content Calendar</h3><p>Visual drag-and-drop calendar showing all your scheduled and planned posts. Syncs with Google and Apple Calendar.</p><ul class="f-list"><li>Drag-and-drop post scheduling</li><li>Google & Apple Calendar sync</li><li>Posting reminders & notifications</li></ul></div>
+    <div class="feat-card wide fade-up"><div class="feat-blob bl"></div><span class="f-icon">🌐</span><h3>Social Media Command Center</h3><p>Connect Instagram, TikTok, YouTube, LinkedIn, and Twitter/X. Schedule posts, manage drafts across all platforms, and track engagement — no more app switching.</p><ul class="f-list" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;"><li>Schedule & auto-publish to 5 platforms</li><li>Draft management across accounts</li><li>Basic analytics & performance tracking</li><li>Multi-account support (Studio plan)</li></ul></div>
+    <div class="feat-card fade-up"><div class="feat-blob pu"></div><span class="f-icon">🤖</span><h3>AI Content Generator</h3><p>30+ AI tools trained on viral patterns. Generate captions, hooks, scripts, and descriptions that actually perform.</p><ul class="f-list"><li>Instagram, TikTok, LinkedIn formats</li><li>Viral hook patterns built in</li><li>Brand voice consistency</li></ul></div>
+    <div class="feat-card fade-up"><div class="feat-blob lv"></div><span class="f-icon">🎨</span><h3>Image Toolkit</h3><p>Platform-perfect resizing, background removal, thumbnail generation — no Canva or Photoshop needed.</p><ul class="f-list"><li>Preset sizes for every platform</li><li>One-click background removal</li><li>AI background generator</li></ul></div>
+  </div>
+</section>
+
+<!-- ── DASHBOARD PREVIEW ── -->
+<section id="dash-preview" style="text-align:center;">
+  <p class="s-lbl">dashboard</p>
+  <h2 class="s-title">Your Creator <span class="gtext">Command Center</span></h2>
+  <div class="dash-frame fade-up">
+    <div class="db-bar">
+      <div class="db-dot r"></div><div class="db-dot y"></div><div class="db-dot g"></div>
+      <div class="db-url">app.creatorkit.io/dashboard</div>
+    </div>
+    <div class="db-layout">
+      <div class="db-side">
+        <div class="db-side-logo">
+          <div class="db-logo-icon">⚡</div>
+          <div class="db-logo-text">Creator<br>Kit</div>
+        </div>
+        <div class="db-nav-sec">
+          <div class="db-nav-lbl">Workspace</div>
+          <div class="db-nav-item on"><span class="ni">🏠</span>Dashboard</div>
+          <div class="db-nav-item"><span class="ni">💡</span>Idea Vault</div>
+          <div class="db-nav-item"><span class="ni">📅</span>Calendar</div>
+          <div class="db-nav-item"><span class="ni">📬</span>Drafts</div>
+        </div>
+        <div class="db-nav-sec">
+          <div class="db-nav-lbl">Tools</div>
+          <div class="db-nav-item"><span class="ni">🤖</span>AI Generator</div>
+          <div class="db-nav-item"><span class="ni">🖼️</span>Image Tools</div>
+          <div class="db-nav-item"><span class="ni">📈</span>Analytics</div>
+        </div>
+        <div class="db-nav-sec">
+          <div class="db-nav-lbl">Accounts</div>
+          <div class="db-nav-item"><span class="ni">📷</span>Instagram</div>
+          <div class="db-nav-item"><span class="ni">🎵</span>TikTok</div>
+          <div class="db-nav-item"><span class="ni">▶️</span>YouTube</div>
+        </div>
+      </div>
+      <div class="db-main">
+        <div class="db-toprow">
+          <div class="db-hi">Good morning, <span>Priya ✨</span></div>
+          <div class="db-srch">🔍 &nbsp;Search tools, ideas...</div>
+        </div>
+        <div class="db-stats">
+          <div class="db-sc"><div class="sv g">47</div><div class="sl">Saved Ideas</div><div class="sd">↑ 3 this week</div></div>
+          <div class="db-sc"><div class="sv">12</div><div class="sl">Posts Scheduled</div><div class="sd">Next 7 days</div></div>
+          <div class="db-sc"><div class="sv g">89</div><div class="sl">AI Generations</div><div class="sd">This month</div></div>
+          <div class="db-sc"><div class="sv">4.2%</div><div class="sl">Avg Engagement</div><div class="sd">↑ +0.6%</div></div>
+        </div>
+        <div class="db-row">
+          <div class="db-card">
+            <h4>⚡ Quick Tools</h4>
+            <div class="qt-grid">
+              <div class="qt"><span class="qi">✍️</span>Caption</div>
+              <div class="qt"><span class="qi">🔥</span>Hook</div>
+              <div class="qt"><span class="qi">#️⃣</span>Hashtag</div>
+              <div class="qt"><span class="qi">✂️</span>BG Remove</div>
+              <div class="qt"><span class="qi">🖼️</span>Resize</div>
+              <div class="qt"><span class="qi">👤</span>Bio Gen</div>
+            </div>
+          </div>
+          <div class="db-card">
+            <h4>💡 Recent Ideas</h4>
+            <div class="idea-l">
+              <div class="idea-i"><div class="itag">Reel Idea</div><div class="itxt">"3 mistakes beginners make in content creation"</div></div>
+              <div class="idea-i"><div class="itag">Carousel</div><div class="itxt">"How to build a personal brand in 2025"</div></div>
+              <div class="idea-i"><div class="itag">Hook</div><div class="itxt">"Nobody talks about this part of going viral…"</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="db-row">
+          <div class="db-card">
+            <h4>📅 This Week</h4>
+            <div class="cal-strip">
+              <div class="cal-d"><div class="cal-dn">MON</div><div class="cal-n">3</div></div>
+              <div class="cal-d"><div class="cal-dn">TUE</div><div class="cal-n td">4</div><div class="cal-dot"></div></div>
+              <div class="cal-d"><div class="cal-dn">WED</div><div class="cal-n hp">5</div></div>
+              <div class="cal-d"><div class="cal-dn">THU</div><div class="cal-n">6</div></div>
+              <div class="cal-d"><div class="cal-dn">FRI</div><div class="cal-n hp">7</div></div>
+              <div class="cal-d"><div class="cal-dn">SAT</div><div class="cal-n">8</div></div>
+              <div class="cal-d"><div class="cal-dn">SUN</div><div class="cal-n hp">9</div></div>
+            </div>
+          </div>
+          <div class="db-card">
+            <h4>🤖 AI Generator</h4>
+            <div class="ai-form">
+              <select class="ai-sel"><option>Instagram Caption</option><option>Viral Hook</option><option>Hashtags</option><option>Reel Script</option></select>
+              <input class="ai-inp" value="Productivity tips for creators" placeholder="Describe your content...">
+              <button class="ai-btn">✨ Generate</button>
+              <div class="ai-out">"The reason you're not consistent isn't laziness — it's lack of a system. Here are 3 tools that changed everything… 🧵"</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PRICING ── -->
+<section id="pricing" style="text-align:center;">
+  <p class="s-lbl">pricing</p>
+  <h2 class="s-title">Simple, Creator-Friendly <span class="gtext">Pricing</span></h2>
+  <div class="price-grid">
+    <div class="price-card fade-up">
+      <div class="p-name">Free</div>
+      <div class="p-price">₹0</div>
+      <div class="p-sub">forever free</div>
+      <div class="p-div"></div>
+      <div class="p-feats">
+        <div class="pf"><span class="pf-i">✦</span>Image Resizer & Compressor</div>
+        <div class="pf"><span class="pf-i">✦</span>Background Remover</div>
+        <div class="pf"><span class="pf-i">✦</span>Caption Generator (5/day)</div>
+        <div class="pf"><span class="pf-i">✦</span>Hashtag Generator</div>
+        <div class="pf"><span class="pf-i">✦</span>Instagram Bio Generator</div>
+        <div class="pf"><span class="pf-i">✦</span>Engagement Rate Calculator</div>
+      </div>
+      <button class="p-btn out">Get Started Free</button>
+    </div>
+    <div class="price-card pop fade-up">
+      <div class="pop-badge">MOST POPULAR</div>
+      <div class="p-name">Pro</div>
+      <div class="p-price g">₹499</div>
+      <div class="p-sub">per month</div>
+      <div class="p-div"></div>
+      <div class="p-feats">
+        <div class="pf"><span class="pf-i">✦</span>Everything in Free</div>
+        <div class="pf"><span class="pf-i">✦</span>Unlimited AI Tools</div>
+        <div class="pf"><span class="pf-i">✦</span>Content Calendar & Planner</div>
+        <div class="pf"><span class="pf-i">✦</span>Post Scheduler (3 accounts)</div>
+        <div class="pf"><span class="pf-i">✦</span>Idea Vault (unlimited)</div>
+        <div class="pf"><span class="pf-i">✦</span>Reel Script & Hook Generator</div>
+        <div class="pf"><span class="pf-i">✦</span>Brand Voice Generator</div>
+      </div>
+      <button class="p-btn fill">Start Pro Plan →</button>
+    </div>
+    <div class="price-card fade-up">
+      <div class="p-name">Studio</div>
+      <div class="p-price">₹999</div>
+      <div class="p-sub">per month</div>
+      <div class="p-div"></div>
+      <div class="p-feats">
+        <div class="pf"><span class="pf-i">✦</span>Everything in Pro</div>
+        <div class="pf"><span class="pf-i">✦</span>10 Social Accounts</div>
+        <div class="pf"><span class="pf-i">✦</span>Advanced Analytics</div>
+        <div class="pf"><span class="pf-i">✦</span>Brand Kit Management</div>
+        <div class="pf"><span class="pf-i">✦</span>Team Collaboration (3 seats)</div>
+        <div class="pf"><span class="pf-i">✦</span>White-label Reports</div>
+        <div class="pf"><span class="pf-i">✦</span>Priority Support + API Access</div>
+      </div>
+      <button class="p-btn out">Start Studio Plan</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── REVIEWS (EMPTY STATE) ── -->
+<section id="reviews" style="text-align:center;">
+  <p class="s-lbl">reviews</p>
+  <h2 class="s-title">What Creators <span class="gtext">Are Saying</span></h2>
+  <div class="reviews-empty fade-up">
+    <div class="empty-icon">💬</div>
+    <h3>Reviews coming soon</h3>
+    <p>We just launched and are collecting our first reviews. Be one of the first creators to try Creator Kit and share your experience!</p>
+    <button class="review-cta" onclick="openFeedback()">Share Your Feedback →</button>
+  </div>
+</section>
+
+<!-- ── TECH ── -->
+<section id="tech" style="text-align:center;">
+  <p class="s-lbl">architecture</p>
+  <h2 class="s-title">Suggested <span class="gtext">Tech Stack</span></h2>
+  <div class="tech-grid">
+    <div class="tech-item"><div class="ti">⚛️</div><div class="tn">Next.js 14</div><div class="tr">Frontend</div></div>
+    <div class="tech-item"><div class="ti">🎨</div><div class="tn">Tailwind CSS</div><div class="tr">Styling</div></div>
+    <div class="tech-item"><div class="ti">🟢</div><div class="tn">Node.js</div><div class="tr">Backend API</div></div>
+    <div class="tech-item"><div class="ti">🗄️</div><div class="tn">PostgreSQL</div><div class="tr">Primary DB</div></div>
+    <div class="tech-item"><div class="ti">🔴</div><div class="tn">Redis</div><div class="tr">Caching</div></div>
+    <div class="tech-item"><div class="ti">🤖</div><div class="tn">Claude API</div><div class="tr">AI Tools</div></div>
+    <div class="tech-item"><div class="ti">🔐</div><div class="tn">NextAuth.js</div><div class="tr">Auth</div></div>
+    <div class="tech-item"><div class="ti">☁️</div><div class="tn">AWS S3</div><div class="tr">File Storage</div></div>
+    <div class="tech-item"><div class="ti">💳</div><div class="tn">Razorpay</div><div class="tr">Payments</div></div>
+    <div class="tech-item"><div class="ti">📧</div><div class="tn">Resend</div><div class="tr">Email</div></div>
+    <div class="tech-item"><div class="ti">📊</div><div class="tn">PostHog</div><div class="tr">Analytics</div></div>
+    <div class="tech-item"><div class="ti">🚀</div><div class="tn">Vercel</div><div class="tr">Deploy</div></div>
+  </div>
+</section>
+
+<!-- ── PAGES ── -->
+<section id="pages" style="text-align:center;">
+  <p class="s-lbl">site architecture</p>
+  <h2 class="s-title">Page Structure & <span class="gtext">SEO Strategy</span></h2>
+  <div class="pages-tbl fade-up">
+    <table>
+      <thead><tr><th>Path</th><th>Page</th><th>Type</th></tr></thead>
+      <tbody>
+        <tr><td class="path">/</td><td>Homepage</td><td><span class="badge pub">PUBLIC</span></td></tr>
+        <tr><td class="path">/dashboard</td><td>Creator Dashboard</td><td><span class="badge auth">AUTH</span></td></tr>
+        <tr><td class="path">/dashboard/vault</td><td>Idea Vault</td><td><span class="badge auth">AUTH</span></td></tr>
+        <tr><td class="path">/dashboard/calendar</td><td>Content Calendar</td><td><span class="badge auth">AUTH</span></td></tr>
+        <tr><td class="path">/tools</td><td>All Tools Directory</td><td><span class="badge seo">SEO</span></td></tr>
+        <tr><td class="path">/tools/background-remover</td><td>Background Remover</td><td><span class="badge seo">SEO</span></td></tr>
+        <tr><td class="path">/tools/image-resizer</td><td>Image Resizer</td><td><span class="badge seo">SEO</span></td></tr>
+        <tr><td class="path">/tools/instagram-bio-generator</td><td>Instagram Bio Generator</td><td><span class="badge seo">SEO</span></td></tr>
+        <tr><td class="path">/tools/caption-generator</td><td>Caption Generator</td><td><span class="badge seo">SEO</span></td></tr>
+        <tr><td class="path">/tools/hashtag-generator</td><td>Hashtag Generator</td><td><span class="badge seo">SEO</span></td></tr>
+        <tr><td class="path">/tools/hook-generator</td><td>Viral Hook Generator</td><td><span class="badge seo">SEO</span></td></tr>
+        <tr><td class="path">/tools/engagement-rate-calculator</td><td>Engagement Rate Calculator</td><td><span class="badge seo">SEO</span></td></tr>
+        <tr><td class="path">/pricing</td><td>Pricing</td><td><span class="badge pub">PUBLIC</span></td></tr>
+        <tr><td class="path">/login</td><td>Sign In / Sign Up</td><td><span class="badge pub">PUBLIC</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section id="cta">
+  <div class="cta-box">
+    <h2>Start building your creator OS <span class="gtext">today.</span></h2>
+    <p>Free to start. No credit card required. Join 12,000+ creators already using Creator Kit.</p>
+    <div class="cta-acts">
+      <button class="btn-lg">Create Free Account →</button>
+      <button class="btn-lg-ghost">View All 30+ Tools</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="foot-brand">
+    <div class="foot-brand-logo">
+      <div class="foot-logo-i">⚡</div>
+      <div class="foot-logo-t">Creator<br>Kit</div>
+    </div>
+    <p>Everything creators need — in one kit. AI tools, content planning, and social scheduling for the modern creator.</p>
+  </div>
+  <div>
+    <h5>Tools</h5>
+    <ul>
+      <li><a href="#">Caption Generator</a></li>
+      <li><a href="#">Background Remover</a></li>
+      <li><a href="#">Hook Generator</a></li>
+      <li><a href="#">Hashtag Generator</a></li>
+      <li><a href="#">Bio Generator</a></li>
+      <li><a href="#">All Tools →</a></li>
+    </ul>
+  </div>
+  <div>
+    <h5>Platform</h5>
+    <ul>
+      <li><a href="#">Dashboard</a></li>
+      <li><a href="#">Idea Vault</a></li>
+      <li><a href="#">Content Calendar</a></li>
+      <li><a href="#">AI Generator</a></li>
+      <li><a href="#">Analytics</a></li>
+    </ul>
+  </div>
+  <div>
+    <h5>Company</h5>
+    <ul>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Pricing</a></li>
+      <li><a href="#">Blog</a></li>
+      <li><a href="#" onclick="openFeedback();return false;">Beta Feedback</a></li>
+      <li><a href="#">Privacy</a></li>
+      <li><a href="#">Terms</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="foot-bot">
+  <span>© 2025 CreatorKit. Made for creators.</span>
+  <span>🇮🇳 Built in India</span>
+</div>
+
+<script>
+// Scroll reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+// Category filter
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// Banner dismiss
+function dismissBanner() {
+  const b = document.getElementById('beta-banner');
+  b.style.display = 'none';
+  document.getElementById('main-nav').style.top = '0';
+}
+
+// Set nav top based on banner height
+function setNavTop() {
+  const b = document.getElementById('beta-banner');
+  const nav = document.getElementById('main-nav');
+  if (b && b.style.display !== 'none') {
+    nav.style.top = b.offsetHeight + 'px';
+  }
+}
+setNavTop();
+window.addEventListener('resize', setNavTop);
+
+// Feedback modal
+function openFeedback() {
+  document.getElementById('fb-overlay').classList.add('open');
+  document.getElementById('fb-form-area').style.display = 'block';
+  document.getElementById('fb-sent').style.display = 'none';
+  document.getElementById('fb-text').value = '';
+}
+function closeFeedback() {
+  document.getElementById('fb-overlay').classList.remove('open');
+}
+function sendFeedback() {
+  const text = document.getElementById('fb-text').value.trim();
+  if (!text) { document.getElementById('fb-text').focus(); return; }
+  window.location.href = `mailto:supportcreatorkit@gmail.com?subject=Creator Kit Beta Feedback&body=${encodeURIComponent(text)}`;
+  document.getElementById('fb-form-area').style.display = 'none';
+  document.getElementById('fb-sent').style.display = 'block';
+}
+document.getElementById('fb-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeFeedback();
+});
+
+// Hero number count-up
+window.addEventListener('load', () => {
+  document.querySelectorAll('.hero-stat .num[data-val]').forEach(el => {
+    const target = parseInt(el.dataset.val);
+    const isK = target >= 1000;
+    const displayTarget = isK ? target / 1000 : target;
+    const suffix = isK ? 'K+' : '+';
+    let start = 0; const dur = 1800;
+    const step = setInterval(() => {
+      start += dur / 60;
+      const p = Math.min(start / dur, 1);
+      const v = Math.floor(p * displayTarget);
+      el.textContent = v + suffix;
+      if (p >= 1) clearInterval(step);
+    }, 1000 / 60);
+  });
+});
+</script>
+</body>
+</html>
